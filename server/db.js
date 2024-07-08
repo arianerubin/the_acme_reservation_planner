@@ -2,7 +2,7 @@ const pg = require("pg");
 const uuid = require("uuid");
 const client = new pg.Client(
   process.env.DATABASE_URL ||
-    "postgres://localhost/the_acme_reservation_planner"
+    "postgres://arianerubin:@localhost/the_acme_reservation_planner"
 );
 
 const createCustomer = async (name) => {

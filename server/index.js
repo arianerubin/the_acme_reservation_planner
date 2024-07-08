@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
 app.use(express.json());
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 const {
+  client,
   createTables,
   createCustomer,
   createRestaurant,
@@ -41,10 +42,11 @@ app.get("/api/reservations", async (req, res, next) => {
 
 app.post("/api/customers/:id/reservations", async (req, res, next) => {
   try {
+    console.log(req.params.id);
     res.status(201).send(
       await createReservation({
-        customer_id: req.params.id,
         restaurant_id: req.body.restaurant_id,
+        customer_id: req.params.id,
         date: req.body.date,
         party_count: req.body.party_count,
       })
@@ -74,31 +76,33 @@ app.use((err, req, res, next) => {
 });
 
 const init = async () => {
+  console.log("connecting to database");
+  await client.connect();
   console.log("connected to database");
   await createTables();
   console.log("created tables");
   const [moe, lucy, larry, ethyl, terrain, pub, chelsea] = await Promise.all([
-    createCustomer({ name: "moe" }),
-    createCustomer({ name: "lucy" }),
-    createCustomer({ name: "larry" }),
-    createCustomer({ name: "ethyl" }),
-    createReservation({ name: "terrain" }),
-    createReservation({ name: "pub" }),
-    createReservation({ name: "chelsea" }),
+    createCustomer("moe"),
+    createCustomer("lucy"),
+    createCustomer("larry"),
+    createCustomer("ethyl"),
+    createRestaurant("terrain"),
+    createRestaurant("pub"),
+    createRestaurant("chelsea"),
   ]);
   console.log(await fetchCustomers());
   console.log(await fetchRestaurants());
 
   const [reservation1, reservation2] = await Promise.all([
     createReservation({
-      customer_id: moe.id,
       restaurant_id: terrain.id,
+      customer_id: moe.id,
       date: "08/14/2024",
       party_count: 4,
     }),
     createReservation({
-      customer_id: moe.id,
       restaurant_id: chelsea.id,
+      customer_id: moe.id,
       date: "08/28/2024",
       party_count: 2,
     }),
